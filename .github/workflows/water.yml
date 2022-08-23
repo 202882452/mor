@@ -7,7 +7,7 @@ on:
 jobs:
   send_message:
     runs-on: ubuntu-latest
-    name: send morning to your girlfriend
+    name: send morning to your girlfriends
 
     steps:
     - name: checkout
@@ -20,7 +20,7 @@ jobs:
       with:
         python-version: '3.x'
         architecture: 'x64'
-    - run: pip install -r ./requirements.txt && python ./main.py
+    - run: pip install -r ./requirements.txt && python ./main1.py
 
     env:
       APP_ID: ${{ secrets.APP_ID }}
