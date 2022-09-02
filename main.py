@@ -1,3 +1,5 @@
+from wechatpy import WeChatClient
+from wechatpy.client.api import WeChatMessage, WeChatTemplate
 import random
 from time import localtime
 # from time import tzset
@@ -79,20 +81,8 @@ def get_color():
     return random.choice(color_list)
 
 
-def get_access_token(config):
-    # appId
-    app_id = config["app_id"]
-    # appSecret
-    app_secret = config["app_secret"]
-    post_url = ("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=app_id&secretapp_secret")
-    try:
-        access_token = get(post_url).json()['access_token']
-    except KeyError:
-        print("获取access_token失败，请检查app_id和app_secret是否正确")
-        os.system("pause")
-        sys.exit(1)
-    # print(access_token)
-    return access_token
+app_id = os.environ["APP_ID"]
+app_secret = os.environ["APP_SECRET"]
 
 
 def get_weather(region, config):
@@ -369,7 +359,9 @@ def handler(event, context):
         sys.exit(1)
 
     # 获取accessToken
-    accessToken = get_access_token(config)
+  client = WeChatClient(app_id, app_secret)
+
+wm = WeChatMessage(client)
     # 接收的用户
     users = config["user"]
     # 传入地区获取天气信息
@@ -385,7 +377,7 @@ def handler(event, context):
     yq_data = yq(region, config)
     # 公众号推送消息
     for user in users:
-        send_message(user, accessToken, region, weather, temp, wind_dir, note_ch, note_en, max_temp, min_temp, sunrise,
+        send_message(user, region, weather, temp, wind_dir, note_ch, note_en, max_temp, min_temp, sunrise,
                      sunset, category, pm2p5, proposal, chp, config, yq_data)
     os.system("pause")
 
