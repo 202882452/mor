@@ -16,6 +16,36 @@ app_secret = os.environ["APP_SECRET"]
 
 user_id = os.environ["USER_ID"]
 template_id = os.environ["TEMPLATE_ID"]
+ef yq(region, config_data):
+    key = config_data["weather_key"]
+    url = "https://geoapi.qweather.com/v2/city/lookup?key={}&location={}".format(key, region)
+    r = get(url).json()
+    if r["code"] == "200":
+        city = r["location"][0]["adm2"]
+        if region in ["台北", "高雄", "台中", "台湾"]:
+            city = "台湾"
+    else:
+        city = ""
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Mobile Safari/537.36',
+    }
+
+    response = get('https://covid.myquark.cn/quark/covid/data?city={}'.format(city), headers=headers).json()
+    if city in ["北京", "上海", "天津", "重庆", "香港", "澳门", "台湾"]:
+        city_data = response["provinceData"]
+    else:
+        city_data = response["cityData"]
+    try:
+        sure_new_loc = "昨日新增：{}".format(city_data["sure_new_loc"])
+        sure_new_hid = "昨日无症状：{}".format(city_data["sure_new_hid"])
+        present = "现有确诊：{}".format(city_data["present"])
+        danger = "中/高风险区：{}/{}".format(city_data["danger"]["1"], city_data["danger"]["2"])
+        statistics_time = response["time"]
+        yq_data = "{}疫情数据\n{}\n{}\n{}\n{}\n{}".format(city, sure_new_loc, sure_new_hid, present, danger, statistics_time)
+    except TypeError:
+        yq_data = ""
+    return yq_data
+
 
 
 def get_weather():
